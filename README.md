@@ -2,6 +2,7 @@
 
 Personal NLP learning repository.
 
-**project 1: 问答摘要与推理**
+**Project 1: 问答摘要与推理**
 
+- Chapter1: 词向量训练与数据清洗
 - 
