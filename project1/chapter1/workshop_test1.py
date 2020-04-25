@@ -67,13 +67,13 @@ def get_model_from_file():
 
 if __name__ == '__main__':
 
-    data_path = './data/small_corpus.txt'
-    model_path = './model/w2v.model'
+    data_path = 'data/small_corpus.txt'
+    model_path = 'model/w2v.model'
     train_w2v_model(data_path, model_path)
     model = Word2Vec.load(model_path)
     print(model.most_similar('车'))
 
-    with open('./data/sentences.txt', 'r', encoding='utf-8') as f:
+    with open('data/sentences.txt', 'r', encoding='utf-8') as f:
         data = f.readlines()
     new_words = []
     for line in data:

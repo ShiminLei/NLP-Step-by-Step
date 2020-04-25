@@ -77,4 +77,4 @@ if __name__ == '__main__':
           'data/train_set.seg_y.txt',
           'data/test_set.seg_x.txt',
           out_path='data/word2vec.txt',
-          sentence_path='data/sentences.txt',)
+          sentence_path='data/sentences.txt', )
