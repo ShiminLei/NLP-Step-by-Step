@@ -60,20 +60,20 @@ def train_w2v_model(data_path, model_path):
     print('training time:', time.time() - start_time)
 
 
-def get_model_from_file():
-    model = Word2Vec.load('w2v.model')
-    return model
+# def get_model_from_file():
+#     model = Word2Vec.load('w2v.model')
+#     return model
 
 
 if __name__ == '__main__':
 
-    data_path = 'data/small_corpus.txt'
-    model_path = 'model/w2v.model'
+    data_path = '../data/small_corpus.txt'
+    model_path = '../model/w2v.model'
     train_w2v_model(data_path, model_path)
     model = Word2Vec.load(model_path)
     print(model.most_similar('车'))
 
-    with open('data/sentences.txt', 'r', encoding='utf-8') as f:
+    with open('../data/sentences.txt', 'r', encoding='utf-8') as f:
         data = f.readlines()
         f.close()
     new_words = []
@@ -81,7 +81,7 @@ if __name__ == '__main__':
         line = line.strip().split(' ')
         new_words.append(line)
     model.train(sentences=new_words, epochs=1, total_examples=len(new_words))  # train的样本有多少个
-    model.save('./model/w2v_add.model')
-    model_add = Word2Vec.load('./model/w2v_add.model')
+    model.save('../model/w2v_add.model')
+    model_add = Word2Vec.load('../model/w2v_add.model')
     print(model_add.most_similar('车'))
     print(model_add['的基督教基督教'])

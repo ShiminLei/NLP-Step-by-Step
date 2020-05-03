@@ -42,6 +42,7 @@ int_word_counts = Counter(int_words)
 total_count = len(int_words)
 word_freqs = {w: c/total_count for w, c in int_word_counts.items()}
 
+# subsampling
 #去除出现频次高的词汇
 if DELETE_WORDS:
     t = 1e-5
@@ -50,27 +51,29 @@ if DELETE_WORDS:
 else:
     train_words = int_words
 
+# 负采样
 #单词分布
 word_freqs = np.array(list(word_freqs.values())) # z(w)
 unigram_dist = word_freqs / word_freqs.sum() # f(w)
 noise_dist = torch.from_numpy(unigram_dist ** (0.75) / np.sum(unigram_dist ** (0.75))) # p(w)
 
 #获取目标词汇
+# idx: 中心词的位置
 def get_target(words, idx, WINDOW_SIZE):
   target_window = np.random.randint(1, WINDOW_SIZE+1) #实际操作的时候，不一定会真的取窗口那么大小，而是取一个小于等于的随机数即可
-  start_point = idx-target_window if (idx-target_window)>0 else 0
-  end_point = idx+target_window
+  start_point = idx-target_window if (idx-target_window)>0 else 0 # 窗口开始的位置
+  end_point = idx+target_window  # 窗口末尾的位置
   targets = set(words[start_point:idx]+words[idx+1:end_point+1])
   return list(targets)
 
 #批次化数据
 def get_batch(words, BATCH_SIZE, WINDOW_SIZE):
   n_batches = len(words)//BATCH_SIZE
-  words = words[:n_batches*BATCH_SIZE]
+  words = words[:n_batches*BATCH_SIZE] # 截掉剩余的
   for idx in range(0, len(words), BATCH_SIZE):
     batch_x, batch_y = [],[]
     batch = words[idx:idx+BATCH_SIZE]#windows size的采样目标词是在batch size下做的，所以最好让batch size要大于Windows size，否则Windows size没意义
-    for i in range(len(batch)):
+    for i in range(len(batch)): # 每个 i 都是中心词
       x = batch[i]
       y = get_target(batch, i, WINDOW_SIZE)
       batch_x.extend([x]*len(y)) #更加清晰skip gram的原理，不是一次性的一个输入，对应多个输出，而是一个个的对应，且输入不变
@@ -81,9 +84,9 @@ def get_batch(words, BATCH_SIZE, WINDOW_SIZE):
 class SkipGramNeg(nn.Module):
     def __init__(self, n_vocab, n_embed, noise_dist):
         super().__init__()
-        self.n_vocab = n_vocab
-        self.n_embed = n_embed
-        self.noise_dist = noise_dist
+        self.n_vocab = n_vocab # 字典大小
+        self.n_embed = n_embed  # embed 的维度
+        self.noise_dist = noise_dist # 负采样的 p
         #定义词向量层
         self.in_embed = nn.Embedding(n_vocab, n_embed)
         self.out_embed = nn.Embedding(n_vocab, n_embed)
@@ -119,8 +122,8 @@ class NegativeSamplingLoss(nn.Module):
         input_vectors = input_vectors.view(BATCH_SIZE, embed_size, 1)
         output_vectors = output_vectors.view(BATCH_SIZE, 1, embed_size)
         #目标词损失
-        out_loss = torch.bmm(output_vectors, input_vectors).sigmoid().log()
-        out_loss = out_loss.squeeze()
+        out_loss = torch.bmm(output_vectors, input_vectors).sigmoid().log() # [batch_size, 1, 1]
+        out_loss = out_loss.squeeze()  # [batch_size]
         #负样本损失
         noise_loss = torch.bmm(noise_vectors.neg(), input_vectors).sigmoid().log()
         noise_loss = noise_loss.squeeze().sum(1)
