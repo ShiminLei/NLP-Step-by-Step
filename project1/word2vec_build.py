@@ -69,6 +69,7 @@ def build(train_x_seg_path, test_y_seg_path, test_seg_path, out_path=None, sente
     word_dict = {}
     for word in model.vocab:
         word_dict[word] = model[word]
+    # 保存词向量
     dump_pkl(word_dict, out_path, overwrite=True)
 
 
