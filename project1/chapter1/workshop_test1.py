@@ -75,6 +75,7 @@ if __name__ == '__main__':
 
     with open('data/sentences.txt', 'r', encoding='utf-8') as f:
         data = f.readlines()
+        f.close()
     new_words = []
     for line in data:
         line = line.strip().split(' ')
